@@ -1,0 +1,9 @@
+# This is the configuration for connecting to the OpenAI API in TOML format.
+# Copy .openai.toml to openai.toml
+
+[openai]
+# The 'apikey' variable should be set to your API key, which can be obtained from the OpenAI website.
+apikey = ""  # Insert your API key here
+
+# The 'organization' variable should be set to the name of your organization, if you are using one.
+organization = ""  # Insert your organization name here, if applicable.
