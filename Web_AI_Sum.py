@@ -20,8 +20,8 @@ def getTextFromHTML(url):
     return text
 
 # This function takes in the text content of the webpage and generates a summary using OpenAI API
-def showTextSummary(webContent):
-    if webContent is None:
+def showTextSummary(text):
+    if text is None:
         return
     try:
         # tldr tag to be added at the end of each summary
@@ -29,7 +29,7 @@ def showTextSummary(webContent):
         model_list = openai.Model.list() 
     
         #split the web content into chunks of 1000 characters
-        string_chunks = [webContent[i:i+1000] for i in range(0, len(webContent), 1000)]
+        string_chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
 
         #iterate through each chunk
         for chunk in string_chunks:
