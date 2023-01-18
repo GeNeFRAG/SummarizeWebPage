@@ -69,8 +69,13 @@ except:
 if len(sys.argv) == 1:
     raise Exception("Usage: SummarizeWebPage <maxtokens> <URL to Website>")
     sys.exit(1)
-
-maxtoken=int(sys.argv[1])
-url=requests.get(sys.argv[2])
+try:
+    maxtoken=int(sys.argv[1])
+    url=requests.get(sys.argv[2])
+except Exception as e:
+    print("Error retrieving commandline arguments")
+    print(e)
+    sys.exit(1)
+    
 text = getTextFromHTML(url)
 showTextSummary(text)
