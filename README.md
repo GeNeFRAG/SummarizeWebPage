@@ -26,7 +26,7 @@ organization = "your_organization"</pre>
 <h2>Functionality</h2>
 <p>The script has two main functions: <code>getTextFromHTML</code> and <code>showTextSummary</code>. The <code>getTextFromHTML</code> function takes a url as input and returns the text content of the webpage, while the <code>showTextSummary</code> function takes in the text content of the webpage and generates a summary using OpenAI API. The script also reads the OpenAI API key and organization from the openai.toml file.</p>
 
-<h2>Note</h2>
+<h2>Notes</h2>
 <ul>
   <li>It will use the OpenAI's <code>text-davinci-003</code> model to generate summary</li>
   <li>The script uses default parameter value of temperature, max_tokens, top_p, frequency_penalty, presence_penalty and echo.</li>
@@ -35,7 +35,7 @@ organization = "your_organization"</pre>
 <h2>Limitations</h2>
 <ul>
   <li>This script uses OpenAI API to generate summary which has usage limit based on the plan you have subscribed to.</li>
-  <li>It will only work for Webpage.</li>
+  <li>It will only work for PDF documents.</li>
 </ul>
 </body>
 </html>
