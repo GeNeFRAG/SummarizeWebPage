@@ -53,7 +53,7 @@ def showTextSummary(text):
     except Exception as e:
         print("Error: Unable to generate summary for the paper.")
         print(e)
-        sys.exit(1)
+        return None
 
 #Reading out OpenAI API keys and organization
 try:
@@ -67,7 +67,7 @@ except:
 
 # Getting max_tokens, url from command line
 if len(sys.argv) == 1:
-    raise Exception("Usage: SummarizeWebPage <maxtokens> <URL to Website>")
+    print("Usage: SummarizeWebPage <maxtokens> <URL to Website>")
     sys.exit(1)
 try:
     maxtoken=int(sys.argv[1])
