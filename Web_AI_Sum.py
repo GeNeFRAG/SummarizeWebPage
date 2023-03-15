@@ -79,7 +79,7 @@ except:
 
 # Getting language, url from command line
 if len(sys.argv) < 3:
-    print("Usage: SummarizeWebPage <Reply language> <URL to Website>")
+    print("Usage: Web_AI_Sum.py <Reply language> <URL to Website>")
     sys.exit(1)
 try:
     lang=sys.argv[1]
