@@ -34,12 +34,13 @@ def showTextSummary(text):
         #iterate through each chunk
         for chunk in string_chunks:
             chunk = chunk + tldr_tag
-            chunk = "Analyse and Summarize following text in short sentences: " + chunk
+            prompt = "Analyse and Summarize following text in short sentences and reply in " + lang + ": " + chunk
             
             # Call the OpenAI API to generate summary
+            """
             response = openai.Completion.create(
                 model="text-davinci-003",
-                prompt=chunk,
+                prompt=prompt,
                 temperature=1,
                 max_tokens=maxtoken,
                 frequency_penalty=0.2,
@@ -47,8 +48,19 @@ def showTextSummary(text):
                 echo=False,
                 stop=["\n"]
             )
+            """
+
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a super smart academic researcher looking for truth"},
+                    {"role": "user", "content": prompt}, 
+                ]
+            )
+
             # Print the summary
-            print(response["choices"][0]["text"])
+            #print(response["choices"][0]["text"])
+            print(response['choices'][0]['message']['content'])
        
     except Exception as e:
         print("Error: Unable to generate summary for the paper.")
@@ -65,12 +77,12 @@ except:
     print("Error: Unable to read openai.toml file.")
     sys.exit(1)
 
-# Getting max_tokens, url from command line
-if len(sys.argv) == 1:
-    print("Usage: SummarizeWebPage <maxtokens> <URL to Website>")
+# Getting language, url from command line
+if len(sys.argv) < 3:
+    print("Usage: SummarizeWebPage <Reply language> <URL to Website>")
     sys.exit(1)
 try:
-    maxtoken=int(sys.argv[1])
+    lang=sys.argv[1]
     url=requests.get(sys.argv[2])
 except Exception as e:
     print("Error retrieving commandline arguments")
