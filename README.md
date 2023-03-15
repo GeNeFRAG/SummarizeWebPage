@@ -29,7 +29,6 @@ organization = "your_organization"</pre>
 <h2>Notes</h2>
 <ul>
   <li>It will use the OpenAI's <code>gpt-3.5-turbo</code> model to generate summary</li>
-  <li>The script uses default parameter value of temperature, max_tokens, top_p, frequency_penalty, presence_penalty and echo.</li>
 </ul>
 
 <h2>Limitations</h2>
