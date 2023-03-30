@@ -1,8 +1,10 @@
-import requests
+import sys
+
 import html2text
 import openai
-import sys
+import requests
 import tomli
+
 
 # This function takes a url as input and returns the text content of the webpage
 def getTextFromHTML(url):
