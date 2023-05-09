@@ -56,26 +56,13 @@ def showTextSummary(text):
         #iterate through each chunk
         for chunk in string_chunks:
             chunk = chunk + tldr_tag
-            prompt = "Analyse and Summarize following text in short sentences and reply in " + lang + ": " + chunk
+            prompt = "Analyse and Summarize following text from a Webpage. Keep the answer short and concise. Respond \"Unsure about answer\" if not sure about the answer. in short sentences and reply in " + lang + ": " + chunk
             
             # Call the OpenAI API to generate summary
-            """
-            response = openai.Completion.create(
-                model="text-davinci-003",
-                prompt=prompt,
-                temperature=1,
-                max_tokens=maxtoken,
-                frequency_penalty=0.2,
-                presence_penalty=0.2,
-                echo=False,
-                stop=["\n"]
-            )
-            """
-
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a super smart academic researcher looking for truth"},
+                    {"role": "system", "content": "You are an AI research assistant. You use a tone that is technical and scientific."},
                     {"role": "user", "content": prompt}, 
                 ]
             )
