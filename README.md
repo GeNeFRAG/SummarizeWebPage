@@ -14,8 +14,8 @@
 </ul>
 
 <h2>Usage</h2>
-<p>To use this script, you need to provide the <code>response language</code> and the <code>URL</code> of the webpage as command line arguments. For example:</p>
-<pre>python Web_AI_Sum.py French https://www.example.com</pre>
+<p>To use this script, you need to provide the <code>--lang</code> and the <code>--url</code> of the webpage as command line arguments. For example:</p>
+<pre>python Web_AI_Sum.py --lang French --url https://www.example.com</pre>
 <p>The script also requires an <code>openai.toml</code> file with the API key and organization details for the OpenAI API. The file should contain the following information:</p>
 <pre>
 [openai]
