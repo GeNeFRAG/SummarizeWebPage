@@ -5,6 +5,26 @@ import openai
 import requests
 import tomli
 
+def get_arg(arg_name, default=None):
+    """
+    Safely reads a command line argument by name.
+    :param arg_name: the name of the argument to read.
+    :param default: the default value to return if the argument is not found.
+    :return: the value of the argument if found, or the default value.
+    """
+    if "--help" in sys.argv:
+        print("Usage: python Web_AI_Sum.py [--help] [--lang] [--url]")
+        print("Arguments:")
+        print("\t--help\t\tHelp\t\tNone")
+        print("\t--lang\t\tLanguage\tEnglish")
+        print("\t--url\t\tURL\t\tNone")
+        # Add more argument descriptions here as needed
+        sys.exit(0)
+    try:
+        arg_value = sys.argv[sys.argv.index(arg_name) + 1]
+        return arg_value
+    except (IndexError, ValueError):
+        return default
 
 # This function takes a url as input and returns the text content of the webpage
 def getTextFromHTML(url):
@@ -80,16 +100,11 @@ except:
     sys.exit(1)
 
 # Getting language, url from command line
-if len(sys.argv) < 3:
-    print("Usage: Web_AI_Sum.py <Reply language> <URL to Website>")
-    sys.exit(1)
-try:
-    lang=sys.argv[1]
-    url=requests.get(sys.argv[2])
-except Exception as e:
-    print("Error retrieving commandline arguments")
-    print(e)
+lang=get_arg('--lang','English')
+url_str=get_arg('--url', None)
+if(url_str == None):
+    print("Type “--help\" for more information.")
     sys.exit(1)
     
-text = getTextFromHTML(url)
+text = getTextFromHTML(requests.get(url_str))
 showTextSummary(text)
