@@ -59,6 +59,7 @@ def showTextSummary(text):
             prompt = "Analyse and Summarize following text from a Webpage. Keep the answer short \
                         and concise. As Webpage text content is normally longer than the ChatGPT limits it's \
                         splittet in chunks of 1000 characters and the prompt is send for each iteration. \
+                        Ignore links, html meta information, header, footer information. \
                         Respond \"Unsure about answer\" if not sure about the answer. in short sentences and \
                         reply in " + lang + ": " + chunk
             
