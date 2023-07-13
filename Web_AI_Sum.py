@@ -5,6 +5,25 @@ import openai
 import requests
 import tomli
 
+def get_completion(prompt, model):
+    messages = [{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0, # this is the degree of randomness of the model's output
+    )
+    return response.choices[0].message["content"]
+
+def optimize_text_for_api(text, max_tokens):
+    tokenized_text = text.split()  # Tokenize the text by splitting on spaces
+    if len(tokenized_text) > max_tokens:
+        tokenized_text = tokenized_text[:max_tokens]  # Truncate the text to fit within the token limit
+        optimized_text = ' '.join(tokenized_text)  # Join the tokens back into a string
+        print("Text has been optimized to fit within the token limit.")
+        return optimized_text
+    else:
+        return text
+
 def get_arg(arg_name, default=None):
     """
     Safely reads a command line argument by name.
@@ -48,40 +67,40 @@ def showTextSummary(text):
     try:
         # tldr tag to be added at the end of each summary
         tldr_tag = "\n tl;dr:"
-        model_list = openai.Model.list() 
+        #model_list = openai.Model.list() 
     
         #split the web content into chunks of 1000 characters
         string_chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
 
         #iterate through each chunk
+        responses = ""
         for chunk in string_chunks:
             chunk = chunk + tldr_tag
-            prompt = "Analyse and Summarize following text from a Webpage. Keep the answer short \
-                        and concise. As Webpage text content is normally longer than the ChatGPT limits it's \
-                        splittet in chunks of 1000 characters and the prompt is send for each iteration. \
-                        Ignore links, html meta information, header, footer information. \
-                        Respond \"Unsure about answer\" if not sure about the answer. in short sentences and \
-                        reply in " + lang + ": " + chunk
-            
-            # Call the OpenAI API to generate summary
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are an AI research assistant. You use a tone that is technical \
-                                                    and scientific and the respone grammatically correct in bulletpoint \
-                                                    sentances"
-                    },
-                    #{"role": "assistant", "content": "Sure! To summarize a Webpage, you can start by identifying the main topic or theme of the Page, and then highlighting the most important information or key points mentioned. You can also condense longer sentences and remove any unnecessary details. Would you like me to provide more details on this?"},
-                    {"role": "user", "content": prompt}, 
-                ]
-            )
+            prompt = f"""You will be provided with text from any webpage delimited by triple backtips.\
+                        Your task is to summarize the chunks in an executive summary style. \
+                        Provide the answer in at most 5 bulletpoint sentences and at most 100 words. \
+                        Respond \"Unsure about answer\" if not sure about the answer. \
+                        Reply in Language {lang}.\
+                        ```{chunk}```
+                        """
 
-            # Print the summary
-            #print(response["choices"][0]["text"])
-            print(response['choices'][0]['message']['content'])
-       
+             # Call the OpenAI API to generate summary
+            response = get_completion(prompt, gptmodel)
+
+            # Store the summary
+            responses = responses + response
+
+        responses = optimize_text_for_api(responses, maxtokens)
+
+        prompt = f"""Your task is to remove duplicate or similar information in provided text delimited by triple backtips. \
+                Your task is to create smooth transitions between each bulletpoint.
+        ```{responses}```
+                """
+        response = get_completion(prompt, gptmodel)
+        print(response)
+
     except Exception as e:
-        print("Error: Unable to generate summary for the paper.")
+        print("Error: Unable to generate summary for the Webpage.")
         print(e)
         return None
 
@@ -91,6 +110,8 @@ try:
         data = tomli.load(f)
         openai.api_key=data["openai"]["apikey"]
         openai.organization=data["openai"]["organization"]
+        gptmodel=data["openai"]["model"]
+        maxtokens = int(data["openai"]["maxtokens"])
 except:
     print("Error: Unable to read openai.toml file.")
     sys.exit(1)
@@ -101,6 +122,7 @@ url_str=get_arg('--url', None)
 if(url_str == None):
     print("Type “--help\" for more information.")
     sys.exit(1)
-    
+
+# Execute
 text = getTextFromHTML(requests.get(url_str))
 showTextSummary(text)

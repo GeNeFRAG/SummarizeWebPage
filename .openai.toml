@@ -7,3 +7,9 @@ apikey = ""  # Insert your API key here
 
 # The 'organization' variable should be set to the name of your organization, if you are using one.
 organization = ""  # Insert your organization name here, if applicable.
+
+# Select the GPT 'model' which should be used
+model = "" # Insert GTP Model here
+
+# Define max tokens for the model
+maxtokens = ""
