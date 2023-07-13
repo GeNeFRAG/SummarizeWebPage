@@ -15,6 +15,7 @@ def get_completion(prompt, model):
     return response.choices[0].message["content"]
 
 def optimize_text_for_api(text, max_tokens):
+    text = text.replace('\r', ' ').replace('\n', ' ')
     tokenized_text = text.split()  # Tokenize the text by splitting on spaces
     if len(tokenized_text) > max_tokens:
         tokenized_text = tokenized_text[:max_tokens]  # Truncate the text to fit within the token limit
