@@ -1,9 +1,51 @@
+import re
+import string
 import sys
 
 import html2text
 import openai
 import requests
 import tomli
+
+
+def split_into_chunks(text, chunk_size=1000, overlap_percentage=1):
+    #split the web content into chunks of 1000 characters
+    text = clean_text(text)
+
+    # Calculate the number of overlapping characters
+    overlap_chars = int(chunk_size * overlap_percentage)
+
+    # Initialize a list to store the chunks
+    chunks = []
+
+    # Loop through the text with the overlap
+    for i in range(0, len(text), chunk_size - overlap_chars):
+        # Determine the end index of the current chunk
+        end_idx = i + chunk_size
+
+        # Slice the text to form a chunk
+        chunk = text[i:end_idx]
+
+        # Append the chunk to the list
+        chunks.append(chunk)
+
+    return chunks
+
+def clean_text(text):
+    # Remove line breaks and replace with spaces
+    text = text.replace('\n', ' ')
+    
+    # Normalize whitespace (remove extra spaces, tabs, etc.)
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Handle special characters (replace with spaces or remove them)
+    special_characters = string.punctuation + "“”‘’"
+    text = ''.join(char if char not in special_characters else ' ' for char in text)
+    
+    # Remove consecutive spaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
 
 def get_completion(prompt, model, temperature=0):
     messages = [{"role": "user", "content": prompt}]
@@ -13,17 +55,6 @@ def get_completion(prompt, model, temperature=0):
         temperature=temperature, # this is the degree of randomness of the model's output
     )
     return response.choices[0].message["content"]
-
-def optimize_text_for_api(text, max_tokens):
-    text = text.replace('\r', ' ').replace('\n', ' ')
-    tokenized_text = text.split()  # Tokenize the text by splitting on spaces
-    if len(tokenized_text) > max_tokens:
-        tokenized_text = tokenized_text[:max_tokens]  # Truncate the text to fit within the token limit
-        optimized_text = ' '.join(tokenized_text)  # Join the tokens back into a string
-        print("Text has been optimized to fit within the token limit.")
-        return optimized_text
-    else:
-        return text
 
 def get_arg(arg_name, default=None):
     """
@@ -47,7 +78,7 @@ def get_arg(arg_name, default=None):
         return default
 
 # This function takes a url as input and returns the text content of the webpage
-def getTextFromHTML(url):
+def get_text_from_html(url):
     html = url.text
 
     # Create an instance of HTML2Text
@@ -62,7 +93,7 @@ def getTextFromHTML(url):
     return text
 
 # This function takes in the text content of the webpage and generates a summary using OpenAI API
-def showTextSummary(text):
+def show_text_summary(text):
     if text is None:
         return
     try:
@@ -71,7 +102,7 @@ def showTextSummary(text):
         #model_list = openai.Model.list() 
     
         #split the web content into chunks of 1000 characters
-        string_chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
+        string_chunks = split_into_chunks(text, 9000, 0.5)
 
         #iterate through each chunk
         responses = ""
@@ -91,13 +122,14 @@ def showTextSummary(text):
             # Store the summary
             responses = responses + response
 
-        responses = optimize_text_for_api(responses, maxtokens)
+        responses = clean_text(responses)
 
         prompt = f"""Your task is to remove duplicate or similar information in provided text delimited by triple backtips. \
+                Keep the bulletpoint sentance format. \
                 Your task is to create smooth transitions between each bulletpoint.
         ```{responses}```
                 """
-        response = get_completion(prompt, gptmodel)
+        response = get_completion(prompt, gptmodel, 0.2)
         print(response)
 
     except Exception as e:
@@ -105,6 +137,7 @@ def showTextSummary(text):
         print(e)
         return None
 
+# START OF SCRIPT
 #Reading out OpenAI API keys and organization
 try:
     with open("openai.toml","rb") as f:
@@ -125,5 +158,5 @@ if(url_str == None):
     sys.exit(1)
 
 # Execute
-text = getTextFromHTML(requests.get(url_str))
-showTextSummary(text)
+text = get_text_from_html(requests.get(url_str))
+show_text_summary(text)
