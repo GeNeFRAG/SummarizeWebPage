@@ -122,7 +122,7 @@ def show_text_summary(text):
 
         responses = clean_text(responses)
 
-        prompt = f"""Your task is to remove duplicate or similar information in provided text delimited by triple backtips. \
+        prompt = f"""Your task is to remove duplicate or redundant information in the provided text delimited by triple backtips. \
                 Provide the answer in at most 5 bulletpoint sentences and keep the tone of the text and at most 100 words. \
                 Your task is to create smooth transitions between each bulletpoint.
         ```{responses}```
@@ -156,5 +156,4 @@ if(url_str == None):
     sys.exit(1)
 
 # Execute
-text = get_text_from_html(requests.get(url_str))
-show_text_summary(text)
+show_text_summary(get_text_from_html(requests.get(url_str)))
