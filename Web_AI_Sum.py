@@ -7,6 +7,8 @@ import openai
 import requests
 import tomli
 
+SPECIAL_CHARACTERS = string.punctuation + "“”‘’"
+PATTERN = re.compile(r'[\n\s]+')
 
 def split_into_chunks(text, chunk_size=1000, overlap_percentage=1):
     #split the web content into chunks of 1000 characters
@@ -32,18 +34,11 @@ def split_into_chunks(text, chunk_size=1000, overlap_percentage=1):
     return chunks
 
 def clean_text(text):
-    # Remove line breaks and replace with spaces
-    text = text.replace('\n', ' ')
-    
-    # Normalize whitespace (remove extra spaces, tabs, etc.)
-    text = re.sub(r'\s+', ' ', text).strip()
+    # Replace line breaks and consecutive whitespace with a single space
+    text = re.sub(PATTERN, ' ', text).strip()
     
     # Handle special characters (replace with spaces or remove them)
-    special_characters = string.punctuation + "“”‘’"
-    text = ''.join(char if char not in special_characters else ' ' for char in text)
-    
-    # Remove consecutive spaces
-    text = re.sub(r'\s+', ' ', text).strip()
+    text = ''.join(char if char not in SPECIAL_CHARACTERS else ' ' for char in text)
     
     return text
 
@@ -72,7 +67,8 @@ def get_arg(arg_name, default=None):
         # Add more argument descriptions here as needed
         sys.exit(0)
     try:
-        arg_value = sys.argv[sys.argv.index(arg_name) + 1]
+        arg_index = sys.argv.index(arg_name)
+        arg_value = sys.argv[arg_index + 1]
         return arg_value
     except (IndexError, ValueError):
         return default
@@ -99,44 +95,30 @@ def show_text_summary(text):
     try:
         # tldr tag to be added at the end of each summary
         tldr_tag = "\n tl;dr:"
-        #model_list = openai.Model.list() 
     
         #split the web content into chunks of 1000 characters
         string_chunks = split_into_chunks(text, 9000, 0.5)
 
-        #iterate through each chunk
-        responses = ""
-        for chunk in string_chunks:
-            chunk = chunk + tldr_tag
-            prompt = f"""You will be provided with text from any webpage delimited by triple backtips.\
-                        Your task is to summarize the chunks in a distinguished analytical executive summary style. \
-                        Reply in Language {lang}.\
-                        ```{chunk}```
-                        """
+        # Iterate through each chunkprint(f"Summarizing transcript using OpenAI completion API with model {gptmodel}")
+        print(f"Summarizing website content using OpenAI completion API with model {gptmodel}")
+        responses = [get_completion(f"""You will be provided with text from any webpage delimited by triple backtips. Your task is to summarize the chunks in a distinguished analytical executive summary style. Reply in Language {lang}.```{chunk}```""", gptmodel) for chunk in string_chunks]
+        complete_response_str = "\n".join(responses)
+        complete_response_str = clean_text(complete_response_str)
 
-             # Call the OpenAI API to generate summary
-            response = get_completion(prompt, gptmodel)
-
-            # Store the summary
-            responses = responses + response
-
-        responses = clean_text(responses)
-
+        print(f"Remove duplicate or redundant information using OpenAI completion API with model {gptmodel}")
         prompt = f"""Your task is to remove duplicate or redundant information in the provided text delimited by triple backtips. \
                 Provide the answer in at most 5 bulletpoint sentences and keep the tone of the text and at most 100 words. \
                 Your task is to create smooth transitions between each bulletpoint.
-        ```{responses}```
+        ```{complete_response_str}```
                 """
         response = get_completion(prompt, gptmodel, 0.2)
         print(response)
-
     except Exception as e:
         print("Error: Unable to generate summary for the Webpage.")
         print(e)
         return None
 
-# START OF SCRIPT
-#Reading out OpenAI API keys and organization
+# Reading out OpenAI API keys and organization
 try:
     with open("openai.toml","rb") as f:
         data = tomli.load(f)
@@ -156,4 +138,5 @@ if(url_str == None):
     sys.exit(1)
 
 # Execute
+print(f"Fetching text from Website")
 show_text_summary(get_text_from_html(requests.get(url_str)))
