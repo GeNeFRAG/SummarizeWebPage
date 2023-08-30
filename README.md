@@ -11,7 +11,7 @@ This script is used to summarize the text content of a webpage by using the Open
 * GPTCommons (as submodule)
 
 # Usage
-To use this script, you need to provide the --lang and the --url of the webpage as command line arguments.  
+To use this script, you need to provide the `--lang` and the `--url` of the webpage as command line arguments.  
 For example:  
 `$ python Web_AI_Sum.py --lang French --url https://www.example.com`  
 The script also requires an `openai.toml` file with the API key, organization details for the OpenAI API, model to be used and the maximum number of tokens per request.  
