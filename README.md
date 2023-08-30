@@ -1,39 +1,24 @@
-<!DOCTYPE html>
-<html>
-<body>
-    <h1>Summary of Webpage using OpenAI</h1>
-<p>This script is used to summarize the text content of a webpage by using the OpenAI Chat API with the actual GPT-3.5 model. It uses the <code>requests</code> library to fetch the HTML content of a webpage, <code>html2text</code> to convert the HTML content to plain text, <code>openai</code> to generate a summary of the text content, <code>sys</code> to handle command line arguments, and <code>tomli</code> to read the OpenAI API key and organization from a configuration file.</p>
+# Sumarize webpages using OpenAI Completion APIs
 
-<h2>Requirements</h2>
-<ul>
-  <li>Python 3</li>
-  <li>openai API key and organization</li>
-  <li>requests</li>
-  <li>html2text</li>
-  <li>tomli</li>
-</ul>
+This script is used to summarize the text content of a webpage by using the OpenAI Completion API. It uses the requests library to fetch the HTML content of a webpage, html2text to convert the HTML content to plain text and OpenAI completion API to generate a summary of the text content.
 
-<h2>Usage</h2>
-<p>To use this script, you need to provide the <code>--lang</code> and the <code>--url</code> of the webpage as command line arguments. For example:</p>
-<pre>python Web_AI_Sum.py --lang French --url https://www.example.com</pre>
-<p>The script also requires an <code>openai.toml</code> file with the API key and organization details for the OpenAI API. The file should contain the following information:</p>
-<pre>
+# Requirements
+* Python 3
+* openai API key and organization
+* requests
+* html2text
+* tomli
+* GPTCommons (as submodule)
+
+# Usage
+To use this script, you need to provide the --lang and the --url of the webpage as command line arguments. For example:
+python Web_AI_Sum.py --lang French --url https://www.example.com
+The script also requires an openai.toml file with the API key, organization details for the OpenAI API, model to be used and the maximum number of tokens per requestr.
+The config file should contain the following information:
 [openai]
 apikey = "your_api_key"
-organization = "your_organization"</pre>
-<p>The script will then fetch the HTML content of the webpage, convert it to plain text, and generate a summary using the OpenAI API. The summary will be printed to the console.</p>
+organization = "your_organization"
+model = "gtp-4"
+maxtokens = "1000"
 
-<h2>Functionality</h2>
-<p>The script has two main functions: <code>getTextFromHTML</code> and <code>showTextSummary</code>. The <code>getTextFromHTML</code> function takes a url as input and returns the text content of the webpage, while the <code>showTextSummary</code> function takes in the text content of the webpage and generates a summary using OpenAI API. The script also reads the OpenAI API key and organization from the openai.toml file.</p>
-
-<h2>Notes</h2>
-<ul>
-  <li>It will use the OpenAI's <code>gpt-3.5-turbo</code> model to generate summary</li>
-</ul>
-
-<h2>Limitations</h2>
-<ul>
-  <li>This script uses OpenAI API to generate summary which has usage limit based on the plan you have subscribed to.</li>
-</ul>
-</body>
-</html>
+The script will then fetch the HTML content of the webpage, convert it to plain text, and generate a summary using the OpenAI API. The summary will be printed to the console.
