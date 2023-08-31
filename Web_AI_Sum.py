@@ -63,24 +63,24 @@ def show_text_summary(text):
         tldr_tag = "\n tl;dr:"
     
         #split the web content into chunks of 1000 characters
-        string_chunks = commons.split_into_chunks(text, 9000, 0.5)
+        string_chunks = commons.split_into_chunks(text, maxtokens, 0.5)
 
         # Iterate through each chunkprint(f"Summarizing transcript using OpenAI completion API with model {gptmodel}")
         print(f"Summarizing website content using OpenAI completion API with model {gptmodel}")
-        responses = [commons.get_completion(f"""You will be provided with text from any webpage delimited by triple backtips. Your task is to summarize the chunks in a distinguished analytical executive summary style. Reply in Language {lang}.```{chunk}```""", gptmodel) for chunk in string_chunks]
+        responses = [commons.get_completion(f"""You will be provided with text from any webpage delimited by triple backtips. Your task is to summarize the chunks in a distinguished analytical summary style. Reply in Language {lang}.```{chunk}```""", gptmodel, temperature) for chunk in string_chunks]
         complete_response_str = "\n".join(responses)
         complete_response_str = commons.clean_text(complete_response_str)
 
         print(f"Remove duplicate or redundant information using OpenAI completion API with model {gptmodel}")
         prompt = f"""Your task is to remove duplicate or redundant information in the provided text delimited by triple backtips. \
-                Provide the answer in at most 5 bulletpoint sentences and keep the tone of the text and at most 100 words. \
+                Provide the answer in at most 5 bulletpoint sentences and keep the tone of the text and at most 500 words. \
                 Your task is to create smooth transitions between each bulletpoint.
         ```{complete_response_str}```
                 """
-        response = commons.get_completion(prompt, gptmodel, 0.2)
+        response = commons.get_completion(prompt, gptmodel, temperature)
         print(response)
     except Exception as e:
-        print("Error: Unable to generate summary for the Webpage.")
+        print(f"Error: Unable to generate summary for the Webpage.")
         print(e)
         return None
 
@@ -91,13 +91,18 @@ commons = GPTCommons()
 try:
     with open("openai.toml","rb") as f:
         data = tomli.load(f)
-        openai.api_key=data["openai"]["apikey"]
-        openai.organization=data["openai"]["organization"]
-        gptmodel=data["openai"]["model"]
-        maxtokens = int(data["openai"]["maxtokens"])
-except:
-    print("Error: Unable to read openai.toml file.")
+except Exception as e:
+    print(f"Error: Unable to read openai.toml file.")
+    print(e)
     sys.exit(1)
+openai.api_key=data["openai"]["apikey"]
+openai.organization=data["openai"]["organization"]
+gptmodel=data["openai"]["model"]
+maxtokens = int(data["openai"]["maxtokens"])
+temperature = float(data["openai"]["temperature"])
+print(f"gptmodel={gptmodel}")
+print(f"maxtokens={maxtokens}")
+print(f"temperature={temperature}")
 
 # Getting language, url from command line
 lang=commons.get_arg('--lang','English')

@@ -13,3 +13,6 @@ model = "" # Insert GTP Model here
 
 # Define max tokens for the model
 maxtokens = ""
+
+# Define the temperature for the model
+temperature = ""
