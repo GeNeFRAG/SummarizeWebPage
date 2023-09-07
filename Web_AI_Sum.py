@@ -59,9 +59,6 @@ def show_text_summary(text):
     if text is None:
         return
     try:
-        # tldr tag to be added at the end of each summary
-        tldr_tag = "\n tl;dr:"
-    
         #split the web content into chunks of 1000 characters
         string_chunks = commons.split_into_chunks(text, maxtokens, 0.5)
 
