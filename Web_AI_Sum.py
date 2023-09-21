@@ -20,7 +20,7 @@ def get_text_from_html(url):
     Example:
     >>> import requests
     >>> url_response = requests.get('https://www.example.com')
-    >>> extracted_text = get_text_from_html(url_response)
+    >>> extracted_text = get_text_from_html(url_response) s
     >>> print(extracted_text)
     'This is an example web page.\nIt contains some text content.'
     """
