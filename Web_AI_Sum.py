@@ -86,9 +86,15 @@ def show_text_summary(text):
 # Initalize Utility class
 commons = GPTCommons.initialize_gpt_commons("openai.toml")
 
+arg_descriptions = {
+    "--help": "Help",
+    "--lang": "Language (default: English)",
+    "--url": "URL"
+}
+
 # Getting language, url from command line
-lang=commons.get_arg('--lang','English')
-url_str=commons.get_arg('--url', None)
+lang=commons.get_arg('--lang', arg_descriptions, 'English')
+url_str=commons.get_arg('--url', arg_descriptions, None)
 if(url_str == None):
     print("Type “--help\" for more information.")
     sys.exit(1)
