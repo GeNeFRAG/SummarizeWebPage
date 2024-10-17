@@ -1,10 +1,7 @@
 import sys
 
 import html2text
-import openai
 import requests
-import tomli
-import traceback
 
 from GPTCommons import GPTCommons
 
@@ -38,7 +35,7 @@ def get_text_from_html(url):
     
     return text
 
-def show_text_summary(text, maxtokens, gptmodel, lang, temperature=0):
+def show_text_summary(text):
     """
     Generates a text summary of a given input text, removes duplicate or redundant information, and prints the result.
 
@@ -65,72 +62,29 @@ def show_text_summary(text, maxtokens, gptmodel, lang, temperature=0):
         return
     try:
         # Split the web content into chunks of 1000 characters
-        string_chunks = commons.split_into_chunks(text, maxtokens, 0.5)
+        string_chunks = commons.split_into_chunks(text, commons.get_maxtokens(), 0.5)
 
         # Iterate through each chunk
-        print(f"Summarizing website content using OpenAI completion API with model {gptmodel}")
-        responses = [commons.get_chat_completion(f"""You will be provided with text from any webpage delimited by triple backtips. Your task is to summarize the chunks in a distinguished analytical summary style. Reply in Language {lang}.```{chunk}```""", gptmodel, temperature) for chunk in string_chunks]
+        print(f"Summarizing website content using OpenAI completion API with model {commons.get_gptmodel()}")
+        responses = [commons.get_chat_completion(f"""Summarize the following webpage text in an analytical style. Reply in {lang}. Text: ```{chunk}```""") for chunk in string_chunks]
         complete_response_str = "\n".join(responses)
         complete_response_str = commons.clean_text(complete_response_str)
 
         # Reduce the text to the maximum number of tokens
-        complete_response_str = commons.reduce_to_max_tokens(complete_response_str, maxtokens, gptmodel)
+        complete_response_str = commons.reduce_to_max_tokens(complete_response_str)
 
-        print(f"Remove duplicate or redundant information using OpenAI completion API with model {gptmodel}")
-        prompt = f"""Your task is to remove duplicate or redundant information in the provided text delimited by triple backtips. \
-                Provide the answer in at most 5 bulletpoint sentences and keep the tone of the text and at most 500 words. \
-                Your task is to create smooth transitions between each bulletpoint.
-        ```{complete_response_str}```
-                """
-        response = commons.get_chat_completion(prompt, gptmodel, temperature)
+        print(f"Remove duplicate or redundant information using OpenAI completion API with model {commons.get_gptmodel()}")
+        prompt = f"""Remove duplicate or redundant information from the text below, keeping the tone consistent. Provide the answer in at most 5 bullet points, with smooth transitions between each point, and a maximum of 500 words.
+                    Text: ```{complete_response_str}```"""
+        response = commons.get_chat_completion(prompt)
         print(response)
     except Exception as e:
         print(f"Error: Unable to generate summary for the Webpage.")
         print(e)
         return None
 
-# Reading out OpenAI API keys and organization
-try:
-    with open("openai.toml","rb") as f:
-        data = tomli.load(f)
-except Exception as e:
-    print(f"Error: Unable to read openai.toml file.")
-    print(e)
-    traceback.print_exc()
-    sys.exit(1)
-
-try:
-    api_key = data["openai"]["apikey"]
-    if not api_key:
-        raise ValueError("API key is missing or empty in the configuration.")
-except KeyError:
-    raise KeyError("API key is mandatory and missing in the configuration.")
-
-try:
-    gptmodel = data["openai"]["model"]
-    if not gptmodel:
-        raise ValueError("Model is missing or empty in the configuration.")
-except KeyError:
-    raise KeyError("Model is missing in the configuration.")
-
-try:
-    maxtokens = int(data["openai"]["maxtokens"])
-except KeyError:
-    raise KeyError("Max tokens is mandatory and missing in the configuration.")
-except ValueError:
-    raise ValueError("Max tokens must be an integer.")
-
-try:
-    temperature = float(data["openai"]["temperature"])
-    if not (0 <= temperature <= 1):
-        raise ValueError("Temperature must be between 0 and 1.")
-except KeyError:
-    raise KeyError("Temperature is mandatory and missing in the configuration.")
-except ValueError:
-    raise ValueError("Temperature must be a float between 0 and 1.")
-
-# Initialize GPT utilities module
-commons = GPTCommons(api_key=api_key)
+# Initalize Utility class
+commons = GPTCommons.initialize_gpt_commons("openai.toml")
 
 # Getting language, url from command line
 lang=commons.get_arg('--lang','English')
@@ -141,4 +95,4 @@ if(url_str == None):
 
 # Execute
 print(f"Fetching text from Website")
-show_text_summary(get_text_from_html(requests.get(url_str)), maxtokens, gptmodel, lang, temperature)
+show_text_summary(get_text_from_html(requests.get(url_str)))
