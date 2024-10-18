@@ -1,8 +1,6 @@
 import sys
-
-import html2text
 import requests
-
+import html2text
 from GPTCommons import GPTCommons
 
 def get_text_from_html(url):
@@ -22,6 +20,7 @@ def get_text_from_html(url):
     >>> print(extracted_text)
     'This is an example web page.\nIt contains some text content.'
     """
+    print("Fetching HTML content from the URL...")
     html = url.text
 
     # Create an instance of HTML2Text
@@ -30,21 +29,21 @@ def get_text_from_html(url):
     text_maker.bypass_tables = True
     text_maker.ignore_images = True
 
-    # Extract the text content from the html
+    print("Extracting text content from the HTML...")
+    # Extract the text content from the HTML
     text = text_maker.handle(html)
     
+    print("Text extraction complete.")
     return text
 
-def show_text_summary(text):
+def show_text_summary(text, output_file=None):
     """
     Generates a text summary of a given input text, removes duplicate or redundant information, and prints the result.
+    If an output file is specified, writes the summary to the file instead of printing it.
 
     Args:
     text (str): The input text to be summarized and cleaned.
-    maxtokens (int): The maximum number of tokens for each chunk.
-    gptmodel (str): The model to use for generating the summary.
-    lang (str): The language for the summary.
-    temperature (float): The temperature to use for generating the summary.
+    output_file (str, optional): The path to the file where the summary should be written. Defaults to None.
 
     Returns:
     None
@@ -59,46 +58,62 @@ def show_text_summary(text):
     The function relies on the 'split_into_chunks' and 'get_completion' functions, and it uses a specific model ('gptmodel') and language ('lang') for text generation.
     """
     if text is None:
+        print("No text found to summarize.")
         return
     try:
         # Split the web content into chunks of 1000 characters
+        print("Splitting the text into manageable chunks...")
         string_chunks = commons.split_into_chunks(text, commons.get_maxtokens(), 0.5)
 
         # Iterate through each chunk
-        print(f"Summarizing website content using OpenAI completion API with model {commons.get_gptmodel()}")
+        print(f"Summarizing website content using OpenAI completion API with model {commons.get_gptmodel()}...")
         responses = [commons.get_chat_completion(f"""Summarize the following webpage text in an analytical style. Reply in {lang}. Text: ```{chunk}```""") for chunk in string_chunks]
         complete_response_str = "\n".join(responses)
         complete_response_str = commons.clean_text(complete_response_str)
 
         # Reduce the text to the maximum number of tokens
+        print("Reducing the text to the maximum number of tokens...")
         complete_response_str = commons.reduce_to_max_tokens(complete_response_str)
 
-        print(f"Remove duplicate or redundant information using OpenAI completion API with model {commons.get_gptmodel()}")
+        print(f"Removing duplicate or redundant information using OpenAI completion API with model {commons.get_gptmodel()}...")
         prompt = f"""Remove duplicate or redundant information from the text below, keeping the tone consistent. Provide the answer in at most 5 bullet points, with smooth transitions between each point, and a maximum of 500 words.
                     Text: ```{complete_response_str}```"""
         response = commons.get_chat_completion(prompt)
-        print(response)
+        
+        if output_file:
+            print(f"Writing summary to output file: {output_file}")
+            with open(output_file, 'w') as f:
+                f.write(response)
+            print("Summary written to file successfully.")
+        else:
+            print("Summary generation complete. Here is the summarized text:")
+            print(response)
     except Exception as e:
-        print(f"Error: Unable to generate summary for the Webpage.")
+        print("Error: Unable to generate summary for the webpage.")
         print(e)
         return None
 
-# Initalize Utility class
+# Initialize Utility class
+print("Initializing GPTCommons utility class...")
 commons = GPTCommons.initialize_gpt_commons("openai.toml")
 
 arg_descriptions = {
     "--help": "Help",
     "--lang": "Language (default: English)",
-    "--url": "URL"
+    "--url": "URL",
+    "--output": "Output file name"
 }
 
-# Getting language, url from command line
-lang=commons.get_arg('--lang', arg_descriptions, 'English')
-url_str=commons.get_arg('--url', arg_descriptions, None)
-if(url_str == None):
-    print("Type “--help\" for more information.")
+# Getting language, url, and output file from command line
+print("Retrieving command-line arguments...")
+lang = commons.get_arg('--lang', arg_descriptions, 'English')
+url_str = commons.get_arg('--url', arg_descriptions, None)
+output_file = commons.get_arg('--output', arg_descriptions, None)
+
+if url_str is None:
+    print("Error: URL not provided. Type '--help' for more information.")
     sys.exit(1)
 
 # Execute
-print(f"Fetching text from Website")
-show_text_summary(get_text_from_html(requests.get(url_str)))
+print(f"Fetching text from the website: {url_str}")
+show_text_summary(get_text_from_html(requests.get(url_str)), output_file)
