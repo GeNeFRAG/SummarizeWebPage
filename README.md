@@ -2,7 +2,7 @@
 
 This script is used to summarize the text content of a webpage by using the OpenAI Completion API. It uses the requests library to fetch the HTML content of a webpage, html2text to convert the HTML content to plain text and OpenAI completion API to generate a summary of the text content.
 
-# Requirements
+## Requirements
 * Python 3
 * openai API key and organization
 * requests
