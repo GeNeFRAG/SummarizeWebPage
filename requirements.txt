@@ -1,0 +1,5 @@
+html2text
+tiktoken
+tomli
+requests
+openai
