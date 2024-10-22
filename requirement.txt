@@ -1,5 +1,4 @@
 html2text
-re
 tiktoken
 tomli
 requests
