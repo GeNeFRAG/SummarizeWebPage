@@ -1,25 +1,39 @@
-# Summarize webpages using OpenAI Completion APIs
+# Summarize Webpages Using OpenAI Completion APIs
 
-This script is used to summarize the text content of a webpage by using the OpenAI Completion API. It uses the requests library to fetch the HTML content of a webpage, html2text to convert the HTML content to plain text and OpenAI completion API to generate a summary of the text content.
+This script summarizes the text content of a webpage using the OpenAI Completion API.
 
 ## Requirements
 * Python 3
-* openai API key and organization
+* openai
 * requests
 * html2text
 * tomli
+* tiktoken
 * GPTCommons (as submodule)
 
-# Usage
-To use this script, you need to provide the `--lang` and the `--url` of the webpage as command line arguments.  
-For example:  
-`$ python Web_AI_Sum.py --lang French --url https://www.example.com`  
-The script also requires an `openai.toml` file with the API key, organization details for the OpenAI API, model to be used and the maximum number of tokens per request.  
-The config file should contain the following information:  
+## Usage
+
+To use this script, provide the following command-line arguments:
+
+### Arguments
+
+- `--url`: URL of the webpage.
+- `--lang`: (Optional) Language of the summary (default: English).
+- `--output`: (Optional) Output file name (default: STDOUT).
+- `--html`: (Optional) Convert output to HTML (default: False).
+- `--detail_level`: (Optional) Detail level of the summary (default: analytical).
+- `--max_words`: (Optional) Maximum number of words for the summary (default: 200).
+
+### OpenAI Configuration
+
+The script requires an `openai.toml` file with API key, organization details, model, and maximum tokens per request. The config file should have the following format:
+
 `[openai]`
 - `apikey = "your_api_key"`
 - `organization = "your_organization"`
-- `model = "gtp-4"`
+- `model = "gpt-4"`
 - `maxtokens = "1000"`
 
-The script will then fetch the HTML content of the webpage, convert it to plain text, and generate a summary using the OpenAI API. The summary will be printed to the console.
+### Example
+
+`$ python Web_AI_Sum.py --lang English --url https://yoururl.com --output yourfile.html --html True --detail_level high --max_words 500`
