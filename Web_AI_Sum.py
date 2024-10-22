@@ -100,6 +100,11 @@ def show_text_summary(text, output_file=None, to_html=False, detail_level='analy
 print("Initializing GPTCommons utility class...")
 commons = GPTCommons.initialize_gpt_commons("openai.toml")
 
+# Check if the model exisits
+print("Checking if the model exists...")
+if not commons.is_valid_gpt_model(commons.get_gptmodel()):
+    sys.exit(1) 
+
 arg_descriptions = {
     "--help": "Help",
     "--lang": "Language (default: English)",
