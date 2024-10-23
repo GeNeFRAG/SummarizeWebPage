@@ -3,3 +3,4 @@ tiktoken
 tomli
 requests
 openai
+markdown2
